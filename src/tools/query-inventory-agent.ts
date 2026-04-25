@@ -128,7 +128,12 @@ export const queryInventoryAgent = createTool({
       };
     }
 
-    const rpcResponse = (await a2aResponse.json()) as JsonRpcResponse;
+    let rpcResponse: JsonRpcResponse;
+    try {
+      rpcResponse = (await a2aResponse.json()) as JsonRpcResponse;
+    } catch {
+      return { success: false, response: "", error: "Respuesta no-JSON del inventory agent" };
+    }
 
     // Verificar si es un error JSON-RPC
     if ("error" in rpcResponse) {
@@ -142,15 +147,15 @@ export const queryInventoryAgent = createTool({
     // Verificar estado de la tarea
     const task = rpcResponse.result as Task;
 
-    if (task.status.state === "failed") {
-      const failMessage = (task.status.message?.parts ?? [])
+    if (task.status.state !== "completed") {
+      const detail = (task.status.message?.parts ?? [])
         .filter((p): p is TextPart => p.type === "text")
         .map((p) => p.text)
         .join(" ");
       return {
         success: false,
         response: "",
-        error: failMessage || "El inventory agent reporto falla sin detalle",
+        error: detail || `Tarea en estado inesperado: ${task.status.state}`,
       };
     }
 
