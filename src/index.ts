@@ -3,6 +3,14 @@ import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { a2aRouter } from "./a2a/api/controller/A2AController.js";
 
+const requiredEnvVars = ["GOOGLE_GENERATIVE_AI_API_KEY", "INVENTORY_AGENT_URL", "JWT_SECRET"];
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    console.error(`Missing required environment variable: ${envVar}`);
+    process.exit(1);
+  }
+}
+
 const app = new Hono();
 
 // Health check
