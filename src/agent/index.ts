@@ -1,11 +1,13 @@
 import { Agent } from "@mastra/core/agent";
-import { google } from "@ai-sdk/google";
 import { queryInventoryAgent } from "../tools/query-inventory-agent.js";
 
 const reportsAgent = new Agent({
   name: "Reports Agent",
   id: "reports-agent",
-  model: google("gemini-2.5-flash"),
+  model: {
+    id: "google/gemini-2.5-flash" as const,
+    apiKey: process.env["GOOGLE_GENERATIVE_AI_API_KEY"],
+  },
   instructions: `Eres un analista de inventario especializado en generar reportes ejecutivos.
 
 Tu unica fuente de datos es el inventory agent, al que accedes mediante la tool queryInventoryAgent.
