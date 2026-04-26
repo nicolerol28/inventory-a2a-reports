@@ -24,7 +24,7 @@ a2aRouter.post("/a2a", authMiddleware, async (c) => {
     );
   }
 
-  if (body.jsonrpc !== "2.0" || !body.id || !body.method) {
+  if (body.jsonrpc !== "2.0" || body.id == null || !body.method) {
     return c.json(
       { jsonrpc: "2.0", id: body.id ?? null, error: { code: -32600, message: "Invalid Request" } },
       400
@@ -47,14 +47,26 @@ a2aRouter.post("/a2a", authMiddleware, async (c) => {
       400
     );
   }
-    try {
-        const task = await handleA2AMessage(message as Message);
-        return c.json({ jsonrpc: "2.0", id: body.id, result: task });
-    } catch (err) {
-        console.error("[A2A] Internal error:", err);
-        return c.json(
-        { jsonrpc: "2.0", id: body.id, error: { code: -32603, message: "Internal server error" } },
-        500
-        );
-    }
+
+  const totalTextLength = message.parts
+    .filter((p): p is { type: "text"; text: string } => typeof p === "object" && p !== null && (p as { type: string }).type === "text")
+    .reduce((sum, p) => sum + p.text.length, 0);
+
+  if (totalTextLength > 8000) {
+    return c.json(
+      { jsonrpc: "2.0", id: body.id, error: { code: -32602, message: "Invalid params: message text exceeds maximum length" } },
+      400
+    );
+  }
+
+  try {
+    const task = await handleA2AMessage(message as Message);
+    return c.json({ jsonrpc: "2.0", id: body.id, result: task });
+  } catch (err) {
+    console.error("[A2A] Internal error:", err);
+    return c.json(
+      { jsonrpc: "2.0", id: body.id, error: { code: -32603, message: "Internal server error" } },
+      500
+    );
+  }
 });
