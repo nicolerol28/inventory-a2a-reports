@@ -32,7 +32,7 @@ function getBaseUrl(): string {
   return url;
 }
 
-const FETCH_TIMEOUT_MS = 10_000;
+const FETCH_TIMEOUT_MS = 60_000;
 
 export const queryInventoryAgent = createTool({
   id: "queryInventoryAgent",
@@ -135,7 +135,6 @@ export const queryInventoryAgent = createTool({
       return { success: false, response: "", error: "Respuesta no-JSON del inventory agent" };
     }
 
-    // Verificar si es un error JSON-RPC
     if ("error" in rpcResponse) {
       return {
         success: false,
@@ -159,13 +158,18 @@ export const queryInventoryAgent = createTool({
       };
     }
 
-    // Extraer texto de los artifacts de la tarea
-    const textParts = (task.artifacts ?? [])
+    const artifactText = (task.artifacts ?? [])
       .flatMap((artifact) => artifact.parts)
       .filter((part): part is TextPart => part.type === "text")
-      .map((part) => part.text);
+      .map((part) => part.text)
+      .join("\n\n");
 
-    const responseText = textParts.join("\n\n");
+    const statusText = (task.status.message?.parts ?? [])
+      .filter((part): part is TextPart => part.type === "text")
+      .map((part) => part.text)
+      .join("\n\n");
+
+    const responseText = artifactText || statusText;
 
     return {
       success: true,
