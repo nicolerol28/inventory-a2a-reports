@@ -1,4 +1,5 @@
-import { reportsAgent } from "../../../agent/index.js";
+import crypto from "node:crypto";
+import { mastra } from "../../../mastra/index.js";
 import type { Task, Message, TextPart } from "../../domain/model/a2a.js";
 
 export async function handleA2AMessage(message: Message): Promise<Task> {
@@ -23,9 +24,14 @@ export async function handleA2AMessage(message: Message): Promise<Task> {
   }
 
   try {
-    const result = await reportsAgent.generate([
-      { role: "user", content: userText },
-    ]);
+    const agent = mastra.getAgent("reportsAgent");
+
+    const result = await agent.generate(userText, {
+      modelSettings: { maxOutputTokens: 4096 },
+    });
+
+    const responseText =
+      typeof result.text === "string" ? result.text : String(result.text);
 
     return {
       id: taskId,
@@ -34,7 +40,7 @@ export async function handleA2AMessage(message: Message): Promise<Task> {
         {
           name: "report",
           description: "Reporte generado por el reports agent",
-          parts: [{ type: "text", text: result.text }],
+          parts: [{ type: "text", text: responseText }],
         },
       ],
     };
