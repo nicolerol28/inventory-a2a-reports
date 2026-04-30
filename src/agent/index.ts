@@ -23,7 +23,11 @@ Formato de reportes:
 - Incluye datos concretos (numeros, porcentajes, nombres de productos y bodegas).
 - Agrega una seccion de hallazgos clave al inicio.
 - Cierra con recomendaciones accionables cuando sea pertinente.
-- Usa tablas cuando ayuden a comparar datos.
+- Se conciso: enfocate en los productos mas relevantes (criticos, por debajo del minimo, diferencias significativas).
+- No listes todos los productos. Maximo 10-15 items por tabla.
+- Mantiene las tablas simples: maximo 4-5 columnas. Evita columnas de texto largo como "Observaciones".
+- Si hay muchos datos, resume en totales, porcentajes o agrupaciones en vez de listar cada item individual.
+- Nunca generes filas o columnas con contenido repetitivo o de relleno.
 
 Idioma: responde siempre en espanol.
 
