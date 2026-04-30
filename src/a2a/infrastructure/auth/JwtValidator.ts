@@ -11,7 +11,7 @@ export function verifyToken(token: string): JwtPayload {
     throw new Error("JWT_SECRET is not configured");
   }
 
-  const decoded = jwt.verify(token, secret, { algorithms: ["HS256"] }) as JwtPayload;
+  const decoded = jwt.verify(token, secret, { algorithms: ["HS256", "HS512"] }) as JwtPayload;
 
   if (typeof decoded.sub !== "string" || !decoded.sub) {
     throw new Error("Token missing or invalid sub claim");
